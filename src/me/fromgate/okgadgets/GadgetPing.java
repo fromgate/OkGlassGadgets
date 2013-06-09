@@ -4,6 +4,7 @@ package me.fromgate.okgadgets;
 import java.net.InetAddress;
 import me.fromgate.okglass.Gadget;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitTask;
 
 public class GadgetPing extends Gadget {
 
@@ -14,13 +15,14 @@ public class GadgetPing extends Gadget {
 	private boolean showhostname = true;
 	private boolean useJavaPing = true;
 	private String cmd;
+	private BukkitTask bt;
 
 	////////////////////////////////////
 	private int lastpingtime = 0;
 	private boolean lastpingacc = false;
 
 	@Override
-	public void init() {
+	public void onEnable() {
 		pingdelay = loadInt("delay-time", 30);
 		repeat = loadInt("number-of-repeats",5);
 		url = loadStr("host", "google.com");
@@ -30,7 +32,7 @@ public class GadgetPing extends Gadget {
 		if(System.getProperty("os.name").startsWith("Windows")) cmd = "ping -n 1 " + url;
 		else cmd = "ping -c 1 " + url;
 
-		Bukkit.getScheduler().runTaskTimerAsynchronously(plg, new Runnable(){
+		bt = Bukkit.getScheduler().runTaskTimerAsynchronously(getOkGlassPlugin(), new Runnable(){
 			@Override
 			public void run() {
 				ping();
@@ -43,8 +45,7 @@ public class GadgetPing extends Gadget {
 		return "Ping";
 	}
 
-	@Override
-	public String getResultName() {
+	private String getResultName() {
 		String pname = "&aPING:";
 		if (showhostname) pname ="&a"+url;
 		if (!lastpingacc) {
@@ -54,11 +55,12 @@ public class GadgetPing extends Gadget {
 		return pname;
 	}
 
-	@Override
-	public int getResultValue() {
+	private int getResultValue() {
 		if (!lastpingacc) return -1;
 		return lastpingtime;
 	}
+	
+
 
 	private void ping(){
 		lastpingtime = -1;
@@ -115,6 +117,16 @@ public class GadgetPing extends Gadget {
 		} catch( Exception e ) {
 			return false;
 		}
+	}
+
+	@Override
+	public void onDisable() {
+		bt.cancel();
+	}
+
+	@Override
+	public void process() {
+		addResult(getResultName(),getResultValue());
 	}
 
 

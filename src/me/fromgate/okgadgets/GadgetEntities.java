@@ -8,26 +8,34 @@ import org.bukkit.World;
 public class GadgetEntities extends Gadget{
 
 	@Override
-	public void init() {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
 	public String getName() {
 		return "Entities";
 	}
 
-	@Override
-	public String getResultName() {
-		return "&eEntities";
-	}
-
-	@Override
-	public int getResultValue() {
+	public int countEntities() {
 		int e = 0;
-		for (World w : Bukkit.getWorlds()) 
-			e += w.getEntities().size();		
+		for (World w : Bukkit.getWorlds()){
+			if (w == null) continue;
+			if ((w.getEntities()==null)||(w.getEntities().isEmpty())) continue;
+			e += w.getEntities().size();
+		}
 		return e;
 	}
 
+	@Override
+	public void onDisable() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onEnable() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void process() {
+		addResult("Entities",countEntities());
+	}
 }

@@ -7,7 +7,7 @@ public class GadgetMemory extends Gadget{
 	boolean gb = false;
 
 	@Override
-	public void init() {
+	public void onEnable() {
 		gb = this.loadBoolean("gigabytes", false);
 	}
 
@@ -16,18 +16,25 @@ public class GadgetMemory extends Gadget{
 		return "Memory";
 	}
 
-	@Override
-	public String getResultName() {
-		int max = (int) Math.max(Runtime.getRuntime().totalMemory(), Runtime.getRuntime().maxMemory())/1024/1024;
+	public String getMemoryStr() {
+		int max = (int) (Math.max(Runtime.getRuntime().totalMemory(), Runtime.getRuntime().maxMemory())/1024/1024);
 		int used = (int) (max-(Runtime.getRuntime().freeMemory()/1024/1024));
-		return "&aMem "+(gb ? (used/1000) : used)+(gb ? "Gb" : "Mb")+" / %";
+		return "Mem "+(gb ? (used/1024) : used)+(gb ? "Gb" : "Mb")+" / %";
 	}
 
-	@Override
-	public int getResultValue() {
+	public int getUsedMemoryPercent() {
 		double max = Math.max(Runtime.getRuntime().totalMemory(), Runtime.getRuntime().maxMemory())/1024/1024;
 		double free = Runtime.getRuntime().freeMemory()/1024/1024;
 		double prc = ((max-free)/max)*100;
 		return (int) Math.round(prc);
+	}
+
+	@Override
+	public void onDisable() {
+	}
+
+	@Override
+	public void process() {
+		addResult(getMemoryStr(),getUsedMemoryPercent());
 	}
 }
